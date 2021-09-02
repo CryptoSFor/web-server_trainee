@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+</head>
+<p><a href="/">Добавить</a></p>
+<body>
+<table>
+    <thead><th>Id</th><th>Name</th><th>Author</th><th>Genre</th></thead>
+    {{range . }}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.Name}}</td>
+        <td>{{.Author}}</td>
+        <td>{{.Genre}}</td>
+        <td><a href="/edit/{{.Id}}">Изменить</a>
+        </td>
+        <td><a href="/delete/{{.Id}}">Удалить</a>
+        </td>
+        <td><a href="/book/{{.Id}}">Выбрать</a>
+        </td>
+    </tr>
+    {{end}}
+</table>
+</body>
+</html>

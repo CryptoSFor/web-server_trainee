@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"github.com/gorilla/mux"
 	"html/template"
 	"log"
@@ -9,15 +8,15 @@ import (
 	"server/storage"
 )
 
-func HandleRequests() {
+func HandleRequests() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", indexHandler)
-	router.HandleFunc("/books", booksHandler)
-	router.HandleFunc("/book/{id}", bookHandler)
+	router.HandleFunc("/books", returnBooksHandler)
+	router.HandleFunc("/book/{id}", returnBookHandler)
 	router.HandleFunc("/edit/{id}", editPageHandler).Methods("GET")
 	router.HandleFunc("/edit/{id}", editBookHandler).Methods("POST")
 	router.HandleFunc("/delete/{id}", deleteBookHandler)
-	log.Fatal(http.ListenAndServe(":8081", router))
+	return router
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +36,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func booksHandler(w http.ResponseWriter, r *http.Request) {
+func returnBooksHandler(w http.ResponseWriter, r *http.Request) {
 	db := storage.OpenDb()
 	books := storage.ReturnAllBooks(db)
 	tmpl, _ := template.ParseFiles("templates/books.html")
@@ -47,16 +46,19 @@ func booksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func bookHandler(w http.ResponseWriter, r *http.Request) {
+func returnBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
-
 	db := storage.OpenDb()
 	book := storage.ReturnSingleBook(db, key)
 	if book.Id == 0{
-		json.NewEncoder(w).Encode("NULL")
+		http.Error(w, http.StatusText(404), http.StatusNotFound)
 	}else {
-		json.NewEncoder(w).Encode(book)
+		tmpl, _ := template.ParseFiles("templates/book.html")
+		err := tmpl.Execute(w, book)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -65,10 +67,14 @@ func editPageHandler(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 	db := storage.OpenDb()
 	book := storage.ReturnSingleBook(db, key)
-	tmpl, _ := template.ParseFiles("templates/edit.html")
-	err := tmpl.Execute(w, book)
-	if err != nil {
-		log.Println(err)
+	if book.Id == 0 {
+		http.Error(w, http.StatusText(404), http.StatusNotFound)
+	} else {
+		tmpl, _ := template.ParseFiles("templates/edit.html")
+		err := tmpl.Execute(w, book)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -86,7 +92,6 @@ func editBookHandler(w http.ResponseWriter, r *http.Request) {
 func deleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
-
 	db := storage.OpenDb()
 	storage.DeleteBook(db, key)
 	http.Redirect(w, r, "/books", 301)

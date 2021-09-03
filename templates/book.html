@@ -2,26 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Books</title>
+    <title>Book</title>
 </head>
-<p><a href="/">add</a></p>
 <body>
+<p><a href="/books">list of all books</a></p>
 <table>
     <thead><th>Id</th><th>Name</th><th>Author</th><th>Genre</th></thead>
-    {{range . }}
     <tr>
         <td>{{.Id}}</td>
         <td>{{.Name}}</td>
         <td>{{.Author}}</td>
         <td>{{.Genre}}</td>
-        <td><a href="/edit/{{.Id}}">edit</a>
-        </td>
-        <td><a href="/delete/{{.Id}}">delete</a>
-        </td>
-        <td><a href="/book/{{.Id}}">choose</a>
-        </td>
     </tr>
-    {{end}}
 </table>
 </body>
 </html>

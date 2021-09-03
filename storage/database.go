@@ -34,13 +34,22 @@ func OpenDb() *sql.DB {
 }
 
 func ReturnAllBooks(db *sql.DB) []Book {
-	rows, err := db.Query("select * from books")
+	rows, err := db.Query("select * from books order by id")
 	if err != nil {
 		log.Println(err)
 	}
-	defer rows.Close()
-	defer db.Close()
-
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 	var books []Book
 	for rows.Next(){
 		b := Book{}
@@ -56,7 +65,12 @@ func ReturnAllBooks(db *sql.DB) []Book {
 
 func ReturnSingleBook(db *sql.DB, key string) Book {
 	row := db.QueryRow("select * from books where Id = $1", key)
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 	b := Book{}
 	err := row.Scan(&b.Id, &b.Name, &b.Author, &b.Genre)
 	if err != nil{
@@ -71,7 +85,12 @@ func AddBook(db *sql.DB, name, author, genre string) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 }
 
 func UpdateBook(db *sql.DB, key, name, author, genre string) {
@@ -80,7 +99,12 @@ func UpdateBook(db *sql.DB, key, name, author, genre string) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 }
 
 func DeleteBook(db *sql.DB, key string) {
@@ -88,5 +112,10 @@ func DeleteBook(db *sql.DB, key string) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 }

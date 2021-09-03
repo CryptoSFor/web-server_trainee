@@ -16,10 +16,10 @@ const (
 )
 
 type Book struct {
-	Id int
-	Name string
+	Id     int
+	Name   string
 	Author string
-	Genre string
+	Genre  string
 }
 
 func OpenDb() *sql.DB {
@@ -51,10 +51,10 @@ func ReturnAllBooks(db *sql.DB) []Book {
 		}
 	}(db)
 	var books []Book
-	for rows.Next(){
+	for rows.Next() {
 		b := Book{}
 		err := rows.Scan(&b.Id, &b.Name, &b.Author, &b.Genre)
-		if err != nil{
+		if err != nil {
 			fmt.Println(err)
 			continue
 		}
@@ -73,7 +73,7 @@ func ReturnSingleBook(db *sql.DB, key string) Book {
 	}(db)
 	b := Book{}
 	err := row.Scan(&b.Id, &b.Name, &b.Author, &b.Genre)
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 	return b

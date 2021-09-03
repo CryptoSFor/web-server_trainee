@@ -31,8 +31,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		db := storage.OpenDb()
 		storage.AddBook(db, name, author, genre)
 		http.Redirect(w, r, "/books", 301)
-	}else {
-		http.ServeFile(w,r, "templates/index.html")
+	} else {
+		http.ServeFile(w, r, "templates/index.html")
 	}
 }
 
@@ -51,9 +51,9 @@ func returnBookHandler(w http.ResponseWriter, r *http.Request) {
 	key := vars["id"]
 	db := storage.OpenDb()
 	book := storage.ReturnSingleBook(db, key)
-	if book.Id == 0{
+	if book.Id == 0 {
 		http.Error(w, http.StatusText(404), http.StatusNotFound)
-	}else {
+	} else {
 		tmpl, _ := template.ParseFiles("templates/book.html")
 		err := tmpl.Execute(w, book)
 		if err != nil {
